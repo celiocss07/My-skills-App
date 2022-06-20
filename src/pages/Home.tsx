@@ -11,13 +11,29 @@ import React, {useState, useEffect} from 'react';
 import Button from '../components/Button';
 import SkillCard from '../components/SkillCard';
 
+interface SkillData {
+  id: string;
+  name: string;
+}
+
 export default function Home() {
   const [newSkill, setNewSkill] = useState('');
-  const [mySkills, setMySkills] = useState([]);
+  const [mySkills, setMySkills] = useState<SkillData[]>([]);
   const [greeting, setGreeting] = useState('');
 
   function handleAddNewSkill() {
-    setMySkills(old => [...old, newSkill]);
+    const data = {
+      id: String(new Date().getTime()),
+      name: newSkill
+    }
+    setMySkills(old => [...old, data]);
+  }
+
+  function handleRemoveSkill(id: string){
+
+    setMySkills(oldState => oldState.filter(
+      skill => skill.id !== id 
+    ))
   }
 
   useEffect( ()=> {
@@ -43,14 +59,21 @@ export default function Home() {
         onChangeText={setNewSkill}
       />
 
-      <Button onPress={handleAddNewSkill} />
+      <Button 
+        title='Add'
+        onPress={handleAddNewSkill} 
+      />
 
       <Text style={[styles.title, {marginVertical: 30}]}>My skills</Text>
 
       <FlatList
         data={mySkills}
-        keyExtractor={item => item}
-        renderItem={({item}) => <SkillCard skill={item} />}
+        keyExtractor={item => item.id}
+        renderItem={({item}) => 
+          <SkillCard 
+            skill={item.name} 
+            onPress={() => handleRemoveSkill(item.id)}
+          />}
       />
     </SafeAreaView>
   );
